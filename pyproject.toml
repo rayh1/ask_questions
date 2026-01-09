@@ -2,7 +2,7 @@
 name = "ask_questions"
 version = "0.1.0"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = ["questionary==2.0.1", "pyyaml==6.0.2"]
 
 [project.optional-dependencies]
 dev = ["ruff", "pytest"]
