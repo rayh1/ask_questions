@@ -1,0 +1,26 @@
+volumes:
+  vol:
+
+networks:
+  net:
+
+services:
+
+  main:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        - ARG_PYTHON_VERSION=${PYTHON_VERSION}
+        - ARG_UV_VERSION=${UV_VERSION}
+    environment:
+      - HOST=0.0.0.0
+    ports:
+      - 3000:3000
+    volumes:
+      - vol:/workspace
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    networks:
+      - net

@@ -1,0 +1,22 @@
+{
+  "name": "ask_questions",
+  "dockerComposeFile": "compose.yaml",
+  "service": "main",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "./init.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "SanaAjani.taskrunnercode"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}

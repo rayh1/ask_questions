@@ -1,0 +1,8 @@
+[project]
+name = "ask_questions"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["ruff", "pytest"]
