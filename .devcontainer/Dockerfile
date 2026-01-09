@@ -30,6 +30,7 @@ RUN uv python install --install-dir /opt/python ${ARG_PYTHON_VERSION}
 # Create a default virtual environment
 RUN uv venv /opt/venv
 ENV VIRTUAL_ENV=/opt/venv
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 RUN uv pip install pip
 
