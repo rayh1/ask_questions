@@ -24,7 +24,7 @@
     {
       "label": "Run Tests",
       "type": "shell",
-      "command": "pytest",
+      "command": "uv run pytest",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
