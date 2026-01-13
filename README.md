@@ -2,6 +2,8 @@
 
 A CLI tool for asking questions interactively using [questionary](https://github.com/tmbo/questionary). Reads question specifications from JSON/YAML and outputs answers as JSON.
 
+Read more about it on the [Ask Questions Blog Post](https://www.mindspark.nu/blog/20260111_ask_questions/).
+
 ## Features
 
 - **Single-select questions**: Pick one option from a list
@@ -58,6 +60,7 @@ python ask_questions.py --example json
 ### Quick-Start Templates
 
 **1. Select only (menu):**
+
 ```yaml
 questions:
   - question: "Pick one"
@@ -67,6 +70,7 @@ questions:
 ```
 
 **2. Select OR freeform (menu includes an "Other" entry):**
+
 ```yaml
 questions:
   - question: "Pick or type"
@@ -78,6 +82,7 @@ questions:
 ```
 
 **3. Freeform only (no menu; direct text input):**
+
 ```yaml
 questions:
   - question: "Any notes?"
@@ -86,6 +91,7 @@ questions:
 ```
 
 **4. Multiselect (checkbox-style, select multiple):**
+
 ```yaml
 questions:
   - question: "Which features do you want?"
@@ -94,22 +100,22 @@ questions:
       - value: "Feature B"
       - value: "Feature C"
     multi_select: true
-    allow_freeform: true  # optional: adds "Other" for custom input
+    allow_freeform: true # optional: adds "Other" for custom input
     freeform_label: "Other (type your own)"
 ```
 
 ### Spec Fields
 
-| Field | Type | Required | Default | Description |
-|-------|------|----------|---------|-------------|
-| `question` | string | ✅ | - | Prompt shown to the user (max 500 chars) |
-| `options` | array | ❌ | `[]` | List of option objects |
-| `options[].value` | string | ✅ | - | Option value (max 200 chars) |
-| `options[].description` | string | ❌ | `""` | Description shown under the option |
-| `allow_freeform` | boolean | ❌ | `true` if options empty, else `false` | Allow custom text input |
-| `freeform_label` | string | ❌ | `"Type something."` | Label for the freeform option |
-| `multi_select` | boolean | ❌ | `false` | Enable checkbox-style multi-selection |
-| `key` | string | ❌ | `"question_N"` | Output key identifier |
+| Field                   | Type    | Required | Default                               | Description                              |
+| ----------------------- | ------- | -------- | ------------------------------------- | ---------------------------------------- |
+| `question`              | string  | ✅       | -                                     | Prompt shown to the user (max 500 chars) |
+| `options`               | array   | ❌       | `[]`                                  | List of option objects                   |
+| `options[].value`       | string  | ✅       | -                                     | Option value (max 200 chars)             |
+| `options[].description` | string  | ❌       | `""`                                  | Description shown under the option       |
+| `allow_freeform`        | boolean | ❌       | `true` if options empty, else `false` | Allow custom text input                  |
+| `freeform_label`        | string  | ❌       | `"Type something."`                   | Label for the freeform option            |
+| `multi_select`          | boolean | ❌       | `false`                               | Enable checkbox-style multi-selection    |
+| `key`                   | string  | ❌       | `"question_N"`                        | Output key identifier                    |
 
 ### Validation Rules
 
@@ -136,15 +142,16 @@ Outputs JSON to stdout:
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Success |
-| 1 | Error (invalid spec, missing file, etc.) |
-| 130 | Cancelled by user (Ctrl+C) |
+| Code | Meaning                                  |
+| ---- | ---------------------------------------- |
+| 0    | Success                                  |
+| 1    | Error (invalid spec, missing file, etc.) |
+| 130  | Cancelled by user (Ctrl+C)               |
 
 ## Full Example
 
 **questions.yaml:**
+
 ```yaml
 questions:
   - question: "Pick an option"
@@ -184,11 +191,13 @@ questions:
 ```
 
 **Run:**
+
 ```bash
 python ask_questions.py --spec questions.yaml --pretty
 ```
 
 **Output:**
+
 ```json
 {
   "choice": "Option 1",
