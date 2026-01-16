@@ -4,11 +4,146 @@
 Reads a question specification from JSON/YAML and outputs answers as JSON.
 
 Usage:
-        python ask_questions.py --spec questions.yaml
-        python ask_questions.py --spec questions.json
-        cat questions.yaml | python ask_questions.py --spec -
-        python ask_questions.py --schema --pretty
-        python ask_questions.py --example yaml
+    python Tools/ask_questions.py --spec questions.yaml
+    python Tools/ask_questions.py --spec questions.json
+    cat questions.yaml | python Tools/ask_questions.py --spec -
+    python Tools/ask_questions.py --schema --pretty
+    python Tools/ask_questions.py --example yaml
+
+Best practices
+-------------
+
+Dynamic specs (preferred): pipe YAML via stdin using ``--spec -``.
+
+    echo "..." | python Tools/ask_questions.py --spec -
+
+Multi-line specs (recommended):
+
+    cat <<'YAML' | python Tools/ask_questions.py --spec -
+    questions:
+      - key: example
+        question: "Pick one"
+        options:
+          - value: "A"
+          - value: "B"
+        allow_freeform: true
+        freeform_label: "Other (type your own)"
+    YAML
+
+If a dynamic spec must be created on disk (last resort), create it under ``/tmp``.
+
+Static specs (templates):
+
+    For fixed templates, e.g. <path>/<file>.yaml, run:
+    python Tools/ask_questions.py --spec "<path>/<file>.yaml"
+
+Question collection:
+
+- Batch multiple questions per invocation (4-6 independent questions is ideal).
+- Do not put dependent questions in the same batch (ask A first; ask B only if needed).
+- Use stable, explicit ``key`` values so answers can be referenced reliably later.
+
+Spec authoring:
+
+- Prefer ``options`` + ``allow_freeform: true`` when plausible answers can be enumerated.
+- Use pure freeform only when options are unknown/unbounded or narrative detail is required.
+- Avoid putting examples in the question body (e.g. "A/B/C"); turn them into options.
+- Keep option lists bounded; if too many candidates, group them or switch to structured freeform.
+- If you list examples in the question body, convert them into `options`
+
+Example (multi-select + freeform):
+
+```yaml
+questions:
+  - key: preferred_verification
+    question: "Which verification methods should be included?"
+    options:
+      - value: "Unit tests"
+      - value: "Integration tests"
+      - value: "Manual UI checks"
+      - value: "Lint / format"
+    multi_select: true
+    allow_freeform: true
+    freeform_label: "Other verification method (describe)"
+```
+
+- Skipped answers: If user provides empty/vague/"I don't know" answers to critical questions:
+  1. For optional context: accept and record as "unspecified".
+  2. For required info: rephrase and ask again with options/examples.
+
+- Conflict detection: After each question batch, check for conflicts between new and previous answers:
+  - Surface both statements ("Earlier you said X, now Y")
+  - Ask which is correct (or if both are true in different contexts)
+
+- Follow-up personalization: When asking follow-up questions, reference the user’s previous answers to reduce cognitive load.
+
+Instead of generic:
+
+```yaml
+- question: "What's the severity of this issue?"
+```
+
+Write personalized:
+
+```yaml
+- question: "You mentioned 'Users can't export PDF reports'. How severe is this for your workflow?"
+```
+
+Spec validity:
+
+- Always emit a top-level ``questions`` list.
+- Prefer providing an explicit ``key`` for every question (stable identifiers).
+- For each question, provide a non-empty ``options`` list OR set ``allow_freeform: true``.
+- Keep ``key`` values unique across questions.
+- Avoid keys that start with ``question_`` unless you provide explicit keys for all questions.
+
+Defaults & hard limits:
+
+- If ``options`` is empty, omitting ``allow_freeform`` defaults it to true (freeform-only question).
+- If ``options`` is non-empty, omitting ``allow_freeform`` defaults it to false (menu-only question).
+- ``multi_select: true`` requires 2-15 options.
+- Limits: max 100 questions; question max 500 chars; option value max 200 chars.
+
+Minimal valid spec examples:
+----------------------------
+
+1) Single freeform question:
+
+        questions:
+            - key: comments
+                question: "Any comments?"
+                options: []
+
+2) Multi-select + freeform:
+
+        questions:
+            - key: verification
+                question: "Which verification methods should be included?"
+                options:
+                    - value: "Unit tests"
+                    - value: "Integration tests"
+                    - value: "Manual UI checks"
+                multi_select: true
+                allow_freeform: true
+                freeform_label: "Other verification method (describe)"
+
+Common invalid spec (anti-example):
+
+        questions:
+            - key: broken
+                question: "Pick one"
+                options: []
+                allow_freeform: false
+
+Produces (stderr):
+
+        Error: Question 0 has no options and allow_freeform is false. Fix: add at least one option or set allow_freeform=true.
+
+Follow-ups (for callers):
+
+- If users give empty/vague answers: accept for optional context; re-ask for required info.
+- After each batch: check for conflicts with previous answers and resolve before proceeding.
+- Personalize follow-up prompts using earlier answers to reduce cognitive load.
 
 Quick-start templates
 ---------------------
@@ -45,17 +180,6 @@ Quick-start templates
                 multi_select: true
                 allow_freeform: true  # optional: adds "Other" for custom input
                 freeform_label: "Other (type your own)"
-
-LLM / generator checklist
--------------------------
-
-- Always emit a top-level "questions" list.
-- For each question, satisfy at least one:
-    - provide a non-empty "options" list, OR
-    - set "allow_freeform: true" (or omit it when options is empty).
-- Keep "key" values unique across questions.
-- Avoid using keys that start with "question_" unless you provide explicit keys for ALL questions.
-    (Otherwise you can collide with auto-generated keys like "question_0".)
 
 Spec fields
 -----------
